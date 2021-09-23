@@ -1,2 +1,4 @@
 # go-client
-API client for teleflow server by Golang
+Golang API client for teleflow server
+
+see `./examples/main.go`
