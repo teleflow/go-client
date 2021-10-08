@@ -6,13 +6,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"time"
 )
 
 var (
 	clientVersion = "0.1a"
+	apiUrlRoot    = "flow/api"
 )
 
 type Client struct {
@@ -51,7 +56,7 @@ func (c *Client) SetHTTPClient(httpClient *http.Client) {
 // newRequest returns new HTTP Request with ..
 func (c *Client) newRequest(method, resource string, body interface{}) (*http.Request, error) {
 
-	endpoint := fmt.Sprintf("%s://%s/flow/api/%s/%s/", c.server.Scheme, c.server.Host, c.apiVersion, resource)
+	endpoint := fmt.Sprintf("%s://%s/%s/%s/%s/", c.server.Scheme, c.server.Host, apiUrlRoot, c.apiVersion, resource)
 
 	var buf io.Reader
 	if body != nil {
@@ -76,6 +81,47 @@ func (c *Client) newRequest(method, resource string, body interface{}) (*http.Re
 	return r, nil
 }
 
+func (c *Client) newUploadRequest(method, resource string, filePath, fileName string) (*http.Request, error) {
+
+	endpoint := fmt.Sprintf("%s://%s/%s/%s/%s/", c.server.Scheme, c.server.Host, apiUrlRoot, c.apiVersion, resource)
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(fileName, filepath.Base(file.Name()))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	io.Copy(part, file)
+	writer.Close()
+
+	r, err := http.NewRequest(method, endpoint, body)
+	if err != nil {
+		return nil, fmt.Errorf("create http request: %s", err)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	r.Header.Add("Content-Type", writer.FormDataContentType())
+
+	// Specify request timeout
+	if c.timeout > 0 {
+		ctx, cancel := context.WithTimeout(r.Context(), c.timeout)
+		defer cancel()
+		r = r.WithContext(ctx)
+	}
+	return r, nil
+}
+
 func (c *Client) execRequest(req *http.Request) (*http.Response, *ApiError, error) {
 
 	req.Header.Set("Accept", "application/json")
@@ -88,7 +134,7 @@ func (c *Client) execRequest(req *http.Request) (*http.Response, *ApiError, erro
 
 	response, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("do request error: %s", err)
 	}
 
 	// check errors from API
@@ -120,7 +166,7 @@ func (c *Client) doRequest(req *http.Request, responseObj interface{}) (*ApiErro
 	// else JSON decode
 	err = json.NewDecoder(response.Body).Decode(responseObj)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decode response error: %s", err)
 	}
 
 	return nil, nil

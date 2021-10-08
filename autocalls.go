@@ -49,8 +49,8 @@ type AutocallTask struct {
 	Params      map[string]string `json:"params,omitempty"`
 	ResultVars  map[string]string `json:"result_vars,omitempty"`
 	ExtId       string            `json:"ext_id,omitempty"`
-	Result      int64             `json:"result"`
-	IsCompleted bool              `json:"is_completed"`
-	IsListened  bool              `json:"is_listened"`
-	CompletedAt time.Time         `json:"completed_at"`
+	Result      int64             `json:"result,omitempty"`
+	IsCompleted bool              `json:"is_completed,omitempty"`
+	IsListened  bool              `json:"is_listened,omitempty"`
+	CompletedAt time.Time         `json:"completed_at,omitempty"`
 }

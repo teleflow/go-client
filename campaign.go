@@ -1,11 +1,12 @@
 package teleflow
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
 
-func (c *Client) GetAutocallCampaigns() ([]*AutocallCampaign, *ApiError, error) {
+func (c *Client) GetCampaigns() ([]*AutocallCampaign, *ApiError, error) {
 	req, err := c.newRequest(http.MethodGet, "auto-call/campaigns", nil)
 	if err != nil {
 		return nil, nil, err
@@ -15,8 +16,58 @@ func (c *Client) GetAutocallCampaigns() ([]*AutocallCampaign, *ApiError, error) 
 	return resp.Data, apiErr, err
 }
 
+func (c *Client) GetCampaign(campaignId int64) (*AutocallCampaign, *ApiError, error) {
+	req, err := c.newRequest(http.MethodGet, fmt.Sprintf("auto-call/campaigns/%d", campaignId), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp := &ResponseAutocallCampaign{}
+	apiErr, err := c.doRequest(req, resp)
+	return resp.Data, apiErr, err
+}
+
+func (c *Client) AddCampaign(campaign *AutocallCampaign) (*AutocallCampaign, *ApiError, error) {
+	req, err := c.newRequest(http.MethodPost, "auto-call/campaigns", campaign)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp := &ResponseAutocallCampaign{}
+	apiErr, err := c.doRequest(req, resp)
+	return resp.Data, apiErr, err
+}
+
+func (c *Client) UpdateCampaign(campaign *AutocallCampaign) (*AutocallCampaign, *ApiError, error) {
+	req, err := c.newRequest(http.MethodPut, fmt.Sprintf("auto-call/campaigns/%d", campaign.Id), campaign)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp := &ResponseAutocallCampaign{}
+	apiErr, err := c.doRequest(req, resp)
+	return resp.Data, apiErr, err
+}
+
+func (c *Client) PartialUpdateCampaign(campaign *AutocallCampaign) (*AutocallCampaign, *ApiError, error) {
+	req, err := c.newRequest(http.MethodPatch, fmt.Sprintf("auto-call/campaigns/%d", campaign.Id), campaign)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp := &ResponseAutocallCampaign{}
+	apiErr, err := c.doRequest(req, resp)
+	return resp.Data, apiErr, err
+}
+
+func (c *Client) DeleteCampaign(campaign *AutocallCampaign) (*AutocallCampaign, *ApiError, error) {
+	req, err := c.newRequest(http.MethodDelete, fmt.Sprintf("auto-call/campaigns/%d", campaign.Id), campaign)
+	if err != nil {
+		return nil, nil, err
+	}
+	resp := &ResponseAutocallCampaign{}
+	apiErr, err := c.doRequest(req, resp)
+	return resp.Data, apiErr, err
+}
+
 func (c *Client) SetWebhook(campaignId int64, url string) (*WebHook, *ApiError, error) {
-	req, err := c.newRequest(http.MethodPost, "auto-call/webhook", WebHook{
+	req, err := c.newRequest(http.MethodPost, fmt.Sprintf("auto-call/campaigns/%d/webhook", campaignId), WebHook{
 		CampaignId: campaignId,
 		WebhookUrl: url,
 	})
@@ -29,9 +80,7 @@ func (c *Client) SetWebhook(campaignId int64, url string) (*WebHook, *ApiError, 
 }
 
 func (c *Client) GetWebhook(campaignId int64) (*WebHook, *ApiError, error) {
-	req, err := c.newRequest(http.MethodGet, "auto-call/webhook", WebHook{
-		CampaignId: campaignId,
-	})
+	req, err := c.newRequest(http.MethodGet, fmt.Sprintf("auto-call/campaigns/%d/webhook", campaignId), nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,15 +110,29 @@ type ResponseAutocallCampaign struct {
 }
 
 type AutocallCampaign struct {
-	Id               int64     `json:"id,omitempty"`
-	Name             string    `json:"name,omitempty"`
-	CreatedAt        time.Time `json:"created_at"`
-	Flow             *Flow     `json:"flow,omitempty"`
-	IsActive         bool      `json:"is_active,omitempty"`
-	Description      string    `json:"description,omitempty"`
-	DateStartAt      time.Time `json:"date_start_at"`
-	DateFinishAt     time.Time `json:"date_finish_at"`
-	CompletedPercent int       `json:"completed_percent,omitempty"`
+	Id                        int64     `json:"id,omitempty"`
+	Name                      string    `json:"name,omitempty"`
+	CreatedAt                 time.Time `json:"created_at"`
+	Flow                      *Flow     `json:"flow,omitempty"`
+	IsActive                  bool      `json:"is_active,omitempty"`
+	Description               string    `json:"description,omitempty"`
+	DateStartAt               time.Time `json:"date_start_at"`
+	DateFinishAt              time.Time `json:"date_finish_at"`
+	CompletedPercent          int       `json:"completed_percent,omitempty"`
+	NumberDialingAttempts     int64     `json:"number_dialing_attempts,omitempty"`
+	IntervalBetweenAttempts   int64     ` json:"interval_between_attempts,omitempty"`
+	DialingTimeout            int64     `json:"dialing_timeout,omitempty"`
+	IntervalForListenedStatus int64     `json:"interval_for_listened_status,omitempty"`
+	IncreaseIntervalDialing   int64     `json:"increase_interval_dialing,omitempty"`
+	TaskLifetime              int64     `json:"task_lifetime,omitempty"`
+	PhoneLine                 string    `json:"phone_line,omitempty"`
+	TimeZone                  *TimeZone `json:"time_zone,omitempty"`
+}
+
+type TimeZone struct {
+	Id     int64  `json:"id,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Offset int64  `json:"offset,omitempty"`
 }
 
 var (
