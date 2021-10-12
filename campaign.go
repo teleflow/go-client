@@ -127,6 +127,7 @@ type AutocallCampaign struct {
 	TaskLifetime              int64     `json:"task_lifetime,omitempty"`
 	PhoneLine                 string    `json:"phone_line,omitempty"`
 	TimeZone                  *TimeZone `json:"time_zone,omitempty"`
+	WebHook                   string    `json:"web_hook,omitempty"`
 }
 
 type TimeZone struct {

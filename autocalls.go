@@ -43,14 +43,31 @@ type ResponseAutocallTask struct {
 }
 
 type AutocallTask struct {
-	Id          int64             `json:"id,omitempty"`
-	Phone       string            `json:"phone,omitempty"`
-	CampaignId  int64             `json:"campaign_id,omitempty"`
-	Params      map[string]string `json:"params,omitempty"`
-	ResultVars  map[string]string `json:"result_vars,omitempty"`
-	ExtId       string            `json:"ext_id,omitempty"`
-	Result      int64             `json:"result,omitempty"`
-	IsCompleted bool              `json:"is_completed,omitempty"`
-	IsListened  bool              `json:"is_listened,omitempty"`
-	CompletedAt time.Time         `json:"completed_at,omitempty"`
+	Id            int64             `json:"id,omitempty"`
+	Phone         string            `json:"phone,omitempty"`
+	CampaignId    int64             `json:"campaign_id,omitempty"`
+	Params        map[string]string `json:"params,omitempty"`
+	ResultVars    map[string]string `json:"result_vars,omitempty"`
+	ExtId         string            `json:"ext_id,omitempty"`
+	Result        int64             `json:"result,omitempty"`
+	IsCompleted   bool              `json:"is_completed,omitempty"`
+	IsListened    bool              `json:"is_listened,omitempty"`
+	InProcess     bool              `json:"in_process,omitempty"`
+	CompletedAt   time.Time         `json:"completed_at,omitempty"`
+	LastCall      *Call             `json:"last_call,omitempty"`
+	NextCallTime  time.Time         `json:"next_call_time,omitempty"`
+	AttemptsCount int64             `json:"attempts_count,omitempty"`
+}
+
+type Call struct {
+	Id              int64         `json:"id,omitempty"`
+	Task            *AutocallTask `json:"task,omitempty"`
+	Status          int64         `json:"status,omitempty"`
+	StatusChangedAt time.Time     `json:"status_changed_at"`
+	Result          int64         `json:"result,omitempty"`
+	Duration        float64       `json:"duration,omitempty"`
+	Comment         string        `json:"comment,omitempty"`
+	Priority        int64         `json:"priority,omitempty"`
+	ResultVariables string        `json:"result_variables,omitempty"`
+	CompletedAt     time.Time     `json:"completed_at"`
 }
