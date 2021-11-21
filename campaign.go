@@ -110,24 +110,25 @@ type ResponseAutocallCampaign struct {
 }
 
 type AutocallCampaign struct {
-	Id                        int64     `json:"id,omitempty"`
-	Name                      string    `json:"name,omitempty"`
-	CreatedAt                 time.Time `json:"created_at"`
-	Flow                      *Flow     `json:"flow,omitempty"`
-	IsActive                  bool      `json:"is_active,omitempty"`
-	Description               string    `json:"description,omitempty"`
-	DateStartAt               time.Time `json:"date_start_at"`
-	DateFinishAt              time.Time `json:"date_finish_at"`
-	CompletedPercent          int       `json:"completed_percent,omitempty"`
-	NumberDialingAttempts     int64     `json:"number_dialing_attempts,omitempty"`
-	IntervalBetweenAttempts   int64     ` json:"interval_between_attempts,omitempty"`
-	DialingTimeout            int64     `json:"dialing_timeout,omitempty"`
-	IntervalForListenedStatus int64     `json:"interval_for_listened_status,omitempty"`
-	IncreaseIntervalDialing   int64     `json:"increase_interval_dialing,omitempty"`
-	TaskLifetime              int64     `json:"task_lifetime,omitempty"`
-	PhoneLine                 string    `json:"phone_line,omitempty"`
-	TimeZone                  *TimeZone `json:"time_zone,omitempty"`
-	WebHook                   string    `json:"web_hook,omitempty"`
+	Id                        int64         `json:"id,omitempty"`
+	Name                      string        `json:"name,omitempty"`
+	CreatedAt                 time.Time     `json:"created_at"`
+	Flow                      *Flow         `json:"flow,omitempty"`
+	IsActive                  bool          `json:"is_active,omitempty"`
+	Description               string        `json:"description,omitempty"`
+	DateStartAt               time.Time     `json:"date_start_at"`
+	DateFinishAt              time.Time     `json:"date_finish_at"`
+	CompletedPercent          int           `json:"completed_percent,omitempty"`
+	NumberDialingAttempts     int64         `json:"number_dialing_attempts,omitempty"`
+	IntervalBetweenAttempts   int64         ` json:"interval_between_attempts,omitempty"`
+	DialingTimeout            int64         `json:"dialing_timeout,omitempty"`
+	IntervalForListenedStatus int64         `json:"interval_for_listened_status,omitempty"`
+	IncreaseIntervalDialing   int64         `json:"increase_interval_dialing,omitempty"`
+	TaskLifetime              int64         `json:"task_lifetime,omitempty"`
+	PhoneLine                 string        `json:"phone_line,omitempty"`
+	TimeZone                  *TimeZone     `json:"time_zone,omitempty"`
+	WebHook                   string        `json:"web_hook,omitempty"`
+	TimePeriods               []*TimePeriod `json:"time_periods,omitempty"`
 }
 
 type TimeZone struct {
