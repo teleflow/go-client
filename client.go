@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -87,28 +86,29 @@ func (c *Client) newUploadRequest(method, resource string, filePath, fileName st
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("open file: %s", err)
 	}
 	defer file.Close()
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile(fileName, filepath.Base(file.Name()))
-
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("create form file: %s", err)
 	}
 
-	io.Copy(part, file)
-	writer.Close()
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return nil, fmt.Errorf("copy file content: %s", err)
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, fmt.Errorf("close writer: %s", err)
+	}
 
 	r, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
 		return nil, fmt.Errorf("create http request: %s", err)
-	}
-
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	r.Header.Add("Content-Type", writer.FormDataContentType())
@@ -144,6 +144,7 @@ func (c *Client) execRequest(req *http.Request) (*http.Response, *ApiError, erro
 		apiResp := &ApiResponse{}
 		err := json.NewDecoder(response.Body).Decode(apiResp)
 		if err != nil {
+			return nil, nil, fmt.Errorf("json decode: %s", err)
 		}
 
 		if apiResp.Error != nil {
